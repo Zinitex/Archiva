@@ -1,0 +1,5 @@
+$kind: collection
+description: Sistem Manajemen Dokumen dengan Version Control
+variables:
+  base_url: http://localhost:3000/api/v1
+  token: ""
