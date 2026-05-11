@@ -16,7 +16,7 @@ async function start() {
 
     app.listen(PORT, () => {
       console.log(`Archiva running on http://localhost:${PORT}`);
-      console.log(`API Base URL: http://localhost:${PORT}/api/v1`);
+      console.log(`API Base URL: http://localhost:${PORT}/api`);
     });
   } catch (err) {
     console.error("Failed to start server:", err);
