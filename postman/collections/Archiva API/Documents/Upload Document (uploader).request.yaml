@@ -1,0 +1,25 @@
+$kind: http-request
+url: "{{base_url}}/documents"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - ""
+    - type: text
+      key: title
+      value: Laporan Q1 2025
+    - type: text
+      key: description
+      value: Laporan keuangan kuartal pertama
+    - type: text
+      key: category_id
+      value: "1"
+    - type: text
+      key: notes
+      value: Versi pertama
+order: 3000

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{base_url}}/documents/1/comments"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "content": "Perlu perbaikan pada section 3"
+    }
+order: 2000

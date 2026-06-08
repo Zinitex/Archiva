@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{base_url}}/documents/1/revisions"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - ""
+    - type: text
+      key: notes
+      value: Perbaikan pada bagian neraca
+order: 4000

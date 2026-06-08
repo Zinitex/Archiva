@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/categories/1"
+method: PUT
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Keuangan & Akuntansi",
+      "description": "Dokumen keuangan dan akuntansi"
+    }
+order: 4000

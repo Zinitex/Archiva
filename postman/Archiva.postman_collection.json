@@ -1,0 +1,527 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Archiva API",
+    "description": "Sistem Manajemen Dokumen dengan Version Control",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api" },
+    { "key": "token", "value": "" },
+    { "key": "token_uploader", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Register Admin",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin Archiva\",\n  \"email\": \"admin@archiva.com\",\n  \"password\": \"password123\",\n  \"role\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Register Uploader",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Budi Uploader\",\n  \"email\": \"budi@archiva.com\",\n  \"password\": \"password123\",\n  \"role\": \"uploader\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.token) {",
+                  "  pm.collectionVariables.set('token', res.data.token);",
+                  "  console.log('Admin token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@archiva.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Login Uploader",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.token) {",
+                  "  pm.collectionVariables.set('token_uploader', res.data.token);",
+                  "  console.log('Uploader token saved');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi@archiva.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Get Profile (Me)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/me",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Categories (CRUD)",
+      "item": [
+        {
+          "name": "Create Category - Keuangan",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/categories",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Keuangan\",\n  \"description\": \"Dokumen terkait keuangan perusahaan\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Create Category - SDM",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/categories",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"SDM\",\n  \"description\": \"Dokumen Sumber Daya Manusia\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Create Category - Operasional",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/categories",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Operasional\",\n  \"description\": \"Dokumen operasional harian\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/categories",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/categories/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/categories/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Keuangan & Akuntansi\",\n  \"description\": \"Dokumen keuangan dan akuntansi perusahaan\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/categories/3",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Documents (CRUD)",
+      "item": [
+        {
+          "name": "Create Document (dengan file)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Laporan Keuangan Q1 2025", "type": "text" },
+                { "key": "description", "value": "Laporan keuangan kuartal pertama tahun 2025", "type": "text" },
+                { "key": "category_id", "value": "1", "type": "text" },
+                { "key": "status", "value": "draft", "type": "text" },
+                { "key": "file", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Document (tanpa file)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "SOP Rekrutmen Karyawan", "type": "text" },
+                { "key": "description", "value": "Standar operasional rekrutmen", "type": "text" },
+                { "key": "category_id", "value": "2", "type": "text" },
+                { "key": "status", "value": "published", "type": "text" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Document as Uploader",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_uploader}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Nota Dinas Budi", "type": "text" },
+                { "key": "description", "value": "Nota dinas dari Budi", "type": "text" },
+                { "key": "category_id", "value": "2", "type": "text" },
+                { "key": "status", "value": "draft", "type": "text" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Documents",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/documents?page=1&limit=10",
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "laporan", "disabled": true },
+                { "key": "category_id", "value": "1", "disabled": true },
+                { "key": "status", "value": "draft", "disabled": true }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get All Documents - Filter by Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/documents?status=draft",
+              "query": [
+                { "key": "status", "value": "draft" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get All Documents - Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/documents?search=laporan",
+              "query": [
+                { "key": "search", "value": "laporan" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get All Documents as Uploader (hanya milik sendiri)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }]
+          }
+        },
+        {
+          "name": "Get Document by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Update Document",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/documents/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Laporan Keuangan Q1 2025 (Revisi)", "type": "text" },
+                { "key": "status", "value": "published", "type": "text" },
+                { "key": "file", "type": "file", "src": "", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Document",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/documents/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Role & Authorization Test",
+      "item": [
+        {
+          "name": "❌ Akses Tanpa Token → 401",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents"
+          }
+        },
+        {
+          "name": "❌ Token Tidak Valid → 401",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents",
+            "header": [{ "key": "Authorization", "value": "Bearer token_palsu_tidak_valid" }]
+          }
+        },
+        {
+          "name": "❌ Uploader Buat Kategori → 403",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/categories",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_uploader}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kategori Baru\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "❌ Uploader Update Kategori → 403",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/categories/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_uploader}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Coba Ubah\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "❌ Uploader Hapus Dokumen Orang Lain → 403",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/documents/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }]
+          }
+        },
+        {
+          "name": "✅ Admin Hapus Dokumen Siapapun → 200",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/documents/2",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Validation Test",
+      "item": [
+        {
+          "name": "❌ Login Email Salah → 401",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"tidakada@archiva.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "❌ Login Password Salah → 401",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@archiva.com\",\n  \"password\": \"passwordsalah\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "❌ Register Email Sudah Ada → 400",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin Duplikat\",\n  \"email\": \"admin@archiva.com\",\n  \"password\": \"password123\",\n  \"role\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "❌ Buat Dokumen Tanpa Title → 400",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "description", "value": "Tidak ada title", "type": "text" },
+                { "key": "category_id", "value": "1", "type": "text" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "❌ Buat Dokumen Tanpa Category → 400",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Dokumen Tanpa Kategori", "type": "text" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "❌ Buat Dokumen Category Tidak Ada → 404",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "Test Kategori Invalid", "type": "text" },
+                { "key": "category_id", "value": "9999", "type": "text" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "❌ Get Dokumen Tidak Ada → 404",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents/9999",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "❌ Get Kategori Tidak Ada → 404",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/categories/9999",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    }
+  ]
+}

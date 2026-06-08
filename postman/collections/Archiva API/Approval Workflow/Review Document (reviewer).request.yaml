@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/documents/1/review"
+method: POST
+headers:
+  Authorization: Bearer {{token}}
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "status": "reviewed",
+      "comment": "Dokumen sudah sesuai standar"
+    }
+order: 2000
