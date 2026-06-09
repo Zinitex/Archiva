@@ -14,10 +14,11 @@ async function start() {
     await sequelize.sync({ alter: process.env.NODE_ENV === "development" });
     console.log("Models synchronized");
 
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", function () {
       console.log(`Archiva running on http://localhost:${PORT}`);
       console.log(`API Base URL: http://localhost:${PORT}/api`);
     });
+    
   } catch (err) {
     console.error("Failed to start server:", err);
     process.exit(1);
