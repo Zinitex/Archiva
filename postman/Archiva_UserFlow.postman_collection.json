@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "archiva-userflow-v1",
+    "_postman_id": "archiva-userflow-v2",
     "name": "Archiva — Document Version Control (User Flow Demo)",
-    "description": "Koleksi demo alur lengkap sistem manajemen dokumen Archiva.\n\nAlur: Setup → Admin buat kategori → Uploader upload dokumen → Reviewer review → Approver approve → Admin kelola.\n\nVariabel otomatis tersimpan via test script setiap login/create.",
+    "description": "Koleksi demo alur lengkap sistem manajemen dokumen Archiva.\n\nAlur: Setup → Admin buat kategori → Uploader upload dokumen → Reviewer review + komentar → Approver approve/reject → Uploader resubmit (jika reject) → Admin archive → Dashboard.\n\nVariabel otomatis tersimpan via test script setiap login/create.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -110,15 +110,7 @@
               "options": { "raw": { "language": "json" } }
             },
             "description": "Login sebagai Admin. Token otomatis tersimpan ke variabel `token_admin`."
-          },
-          "response": [
-            {
-              "name": "200 OK",
-              "status": "OK",
-              "code": 200,
-              "body": "{\n  \"message\": \"Login berhasil\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"user\": { \"id\": 1, \"name\": \"Admin Archiva\", \"email\": \"admin@archiva.com\", \"role\": \"admin\" }\n  }\n}"
-            }
-          ]
+          }
         },
         {
           "name": "Login — Uploader",
@@ -211,15 +203,7 @@
             "url": "{{base_url}}/auth/me",
             "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
             "description": "Verifikasi bahwa token Admin valid dan berisi data profil yang benar."
-          },
-          "response": [
-            {
-              "name": "200 OK",
-              "status": "OK",
-              "code": 200,
-              "body": "{\n  \"data\": { \"id\": 1, \"name\": \"Admin Archiva\", \"email\": \"admin@archiva.com\", \"role\": \"admin\" }\n}"
-            }
-          ]
+          }
         },
         {
           "name": "Server Health Check",
@@ -227,15 +211,7 @@
             "method": "GET",
             "url": "{{base_url}}/auth/status",
             "description": "Cek status server — tidak butuh token."
-          },
-          "response": [
-            {
-              "name": "200 OK",
-              "status": "OK",
-              "code": 200,
-              "body": "{\n  \"status\": \"ok\",\n  \"timestamp\": \"2025-06-01T10:00:00.000Z\",\n  \"environment\": \"development\",\n  \"version\": \"v20.x.x\"\n}"
-            }
-          ]
+          }
         }
       ]
     },
@@ -273,15 +249,7 @@
               "options": { "raw": { "language": "json" } }
             },
             "description": "Buat kategori Keuangan. ID otomatis tersimpan ke `category_id`."
-          },
-          "response": [
-            {
-              "name": "201 Created",
-              "status": "Created",
-              "code": 201,
-              "body": "{\n  \"message\": \"Kategori berhasil dibuat\",\n  \"data\": { \"id\": 1, \"name\": \"Keuangan\", \"description\": \"Laporan keuangan, anggaran, dan audit perusahaan\" }\n}"
-            }
-          ]
+          }
         },
         {
           "name": "Create Category — SDM",
@@ -336,8 +304,7 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/categories",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
-            "description": "Lihat semua kategori yang sudah dibuat."
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }]
           }
         },
         {
@@ -345,8 +312,7 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/categories/{{category_id}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
-            "description": "Detail satu kategori berdasarkan ID."
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }]
           }
         },
         {
@@ -362,8 +328,7 @@
               "mode": "raw",
               "raw": "{\n  \"name\": \"Keuangan & Akuntansi\",\n  \"description\": \"Laporan keuangan, akuntansi, dan audit perusahaan\"\n}",
               "options": { "raw": { "language": "json" } }
-            },
-            "description": "Perbarui nama dan deskripsi kategori."
+            }
           }
         },
         {
@@ -380,7 +345,7 @@
 
     {
       "name": "03 · Uploader — Upload & Revisi Dokumen",
-      "description": "Uploader membuat dokumen baru, mengunggah file, lalu merevisi dengan mengganti file (simulasi version control — file lama otomatis terhapus, diganti file baru).",
+      "description": "Uploader membuat dokumen baru (status otomatis `draft`), mengunggah file, lalu merevisi dengan mengganti file. Setiap kali file diganti, versi baru otomatis dibuat di tabel document_versions.",
       "item": [
         {
           "name": "Upload Dokumen v1 — dengan File",
@@ -408,11 +373,10 @@
                 { "key": "title",       "value": "Laporan Keuangan Q1 2025",                         "type": "text" },
                 { "key": "description", "value": "Draft laporan keuangan kuartal pertama tahun 2025", "type": "text" },
                 { "key": "category_id", "value": "1",                                                 "type": "text" },
-                { "key": "status",      "value": "draft",                                             "type": "text" },
                 { "key": "file",        "type": "file", "src": "" }
               ]
             },
-            "description": "Upload dokumen pertama (v1) dengan status `draft`. Lampirkan file PDF/DOCX. ID dokumen tersimpan ke `document_id`."
+            "description": "Upload dokumen pertama (v1). Status otomatis `draft` — tidak perlu dikirim. Lampirkan file PDF/DOCX. ID dokumen tersimpan ke `document_id`."
           },
           "response": [
             {
@@ -434,11 +398,10 @@
               "formdata": [
                 { "key": "title",       "value": "SOP Rekrutmen Karyawan 2025",              "type": "text" },
                 { "key": "description", "value": "Standar operasional proses rekrutmen baru", "type": "text" },
-                { "key": "category_id", "value": "2",                                          "type": "text" },
-                { "key": "status",      "value": "draft",                                      "type": "text" }
+                { "key": "category_id", "value": "2",                                          "type": "text" }
               ]
             },
-            "description": "Buat dokumen tanpa lampiran file — hanya metadata."
+            "description": "Buat dokumen tanpa lampiran file — hanya metadata. Status tetap `draft`."
           }
         },
         {
@@ -464,8 +427,7 @@
               "raw": "{{base_url}}/documents?status=draft",
               "query": [{ "key": "status", "value": "draft" }]
             },
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
-            "description": "Filter dokumen yang masih berstatus draft."
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }]
           }
         },
         {
@@ -473,8 +435,7 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/documents/{{document_id}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
-            "description": "Lihat detail lengkap satu dokumen termasuk metadata file dan kategori."
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }]
           }
         },
         {
@@ -490,7 +451,7 @@
                 { "key": "description", "value": "Update deskripsi tanpa mengganti file",    "type": "text" }
               ]
             },
-            "description": "Ubah judul/deskripsi tanpa mengganti file yang sudah ada."
+            "description": "Ubah judul/deskripsi tanpa mengganti file. Hanya bisa dilakukan saat status `draft` atau `rejected`."
           }
         },
         {
@@ -502,16 +463,17 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "title",       "value": "Laporan Keuangan Q1 2025 (Revisi)",    "type": "text" },
-                { "key": "description", "value": "File diperbarui — revisi setelah review internal", "type": "text" },
-                { "key": "file",        "type": "file", "src": "" }
+                { "key": "title",        "value": "Laporan Keuangan Q1 2025 (Revisi)",              "type": "text" },
+                { "key": "description",  "value": "File diperbarui — revisi setelah review internal", "type": "text" },
+                { "key": "version_note", "value": "Perbaikan angka di halaman 3",                    "type": "text" },
+                { "key": "file",         "type": "file", "src": "" }
               ]
             },
-            "description": "Ganti file dengan versi terbaru (v2). File lama otomatis dihapus dari server dan diganti file baru — ini mekanisme version control Archiva."
+            "description": "Ganti file dengan versi terbaru (v2). File lama dihapus dari server dan versi baru tercatat otomatis di tabel document_versions. Field `version_note` opsional untuk catatan revisi."
           },
           "response": [
             {
-              "name": "200 OK — File Replaced",
+              "name": "200 OK — File Replaced (v2 Created)",
               "status": "OK",
               "code": 200,
               "body": "{\n  \"message\": \"Dokumen berhasil diupdate\",\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"Laporan Keuangan Q1 2025 (Revisi)\",\n    \"original_filename\": \"laporan-q1-revisi.pdf\",\n    \"status\": \"draft\"\n  }\n}"
@@ -519,7 +481,7 @@
           ]
         },
         {
-          "name": "Cari Dokumen by Kata Kunci",
+          "name": "Cari Dokumen by Judul",
           "request": {
             "method": "GET",
             "url": {
@@ -527,15 +489,27 @@
               "query": [{ "key": "search", "value": "laporan" }]
             },
             "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
-            "description": "Cari dokumen yang judulnya mengandung kata 'laporan'."
+            "description": "Cari dokumen yang judulnya atau deskripsinya mengandung kata kunci."
+          }
+        },
+        {
+          "name": "Cari Dokumen by Deskripsi",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/documents?search=kuartal",
+              "query": [{ "key": "search", "value": "kuartal" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
+            "description": "Pencarian juga menelusuri kolom deskripsi, bukan hanya judul."
           }
         }
       ]
     },
 
     {
-      "name": "04 · Reviewer — Periksa & Publikasikan",
-      "description": "Reviewer melihat semua dokumen draft, melakukan review, lalu mengubah status ke `published` sebagai tanda dokumen sudah diperiksa.",
+      "name": "04 · Reviewer — Review & Komentar",
+      "description": "Reviewer melihat semua dokumen draft, bisa menambahkan komentar, lalu mengubah status ke `reviewed` via endpoint khusus POST /:id/review.",
       "item": [
         {
           "name": "Lihat Semua Dokumen Draft (perlu direview)",
@@ -550,7 +524,7 @@
               ]
             },
             "header": [{ "key": "Authorization", "value": "Bearer {{token_reviewer}}" }],
-            "description": "Reviewer melihat seluruh dokumen berstatus draft yang menunggu review."
+            "description": "Reviewer melihat seluruh dokumen berstatus draft dari semua uploader."
           }
         },
         {
@@ -558,8 +532,7 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/documents/{{document_id}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_reviewer}}" }],
-            "description": "Buka detail dokumen sebelum memberikan keputusan."
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_reviewer}}" }]
           }
         },
         {
@@ -574,61 +547,88 @@
               ]
             },
             "header": [{ "key": "Authorization", "value": "Bearer {{token_reviewer}}" }],
-            "description": "Filter dokumen draft di kategori Keuangan (ID 1) saja."
+            "description": "Filter dokumen draft di kategori Keuangan saja."
           }
         },
         {
-          "name": "Publikasikan Dokumen — Status: draft → published",
+          "name": "Tambah Komentar Review",
           "request": {
-            "method": "PUT",
-            "url": "{{base_url}}/documents/{{document_id}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_reviewer}}" }],
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/comments",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_reviewer}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
             "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "status", "value": "published", "type": "text" }
-              ]
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Mohon perbaiki angka di tabel halaman 3, ada ketidaksesuaian dengan data bulan Februari.\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "description": "Reviewer mengubah status dokumen dari `draft` ke `published`. Dokumen siap untuk di-approve."
+            "description": "Reviewer menambahkan catatan/komentar sebelum atau sesudah review. Komentar tercatat di histori dokumen."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "body": "{\n  \"message\": \"Komentar berhasil ditambahkan\",\n  \"data\": {\n    \"id\": 1,\n    \"document_id\": 1,\n    \"content\": \"Mohon perbaiki angka di tabel halaman 3...\",\n    \"user\": { \"id\": 3, \"name\": \"Siti Reviewer\", \"role\": \"reviewer\" }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Review Dokumen — draft → reviewed",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/review",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_reviewer}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Dokumen sudah diperiksa dan sesuai dengan standar perusahaan. Siap untuk approval.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Reviewer menandai dokumen sudah diperiksa. Status berubah dari `draft` → `reviewed`. Field `note` opsional."
           },
           "response": [
             {
               "name": "200 OK",
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"message\": \"Dokumen berhasil diupdate\",\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"Laporan Keuangan Q1 2025 (Revisi)\",\n    \"status\": \"published\"\n  }\n}"
+              "body": "{\n  \"message\": \"Dokumen berhasil direview\",\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"Laporan Keuangan Q1 2025 (Revisi)\",\n    \"status\": \"reviewed\"\n  }\n}"
             }
           ]
         },
         {
-          "name": "Lihat Semua Dokumen Published",
+          "name": "Lihat Semua Dokumen Reviewed",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/documents?status=published",
-              "query": [{ "key": "status", "value": "published" }]
+              "raw": "{{base_url}}/documents?status=reviewed",
+              "query": [{ "key": "status", "value": "reviewed" }]
             },
             "header": [{ "key": "Authorization", "value": "Bearer {{token_reviewer}}" }],
-            "description": "Verifikasi dokumen sudah masuk ke status published."
+            "description": "Verifikasi dokumen sudah masuk ke status reviewed dan menunggu approval."
           }
         }
       ]
     },
 
     {
-      "name": "05 · Approver — Setujui & Arsipkan",
-      "description": "Approver melihat dokumen yang sudah published, lalu mengubah status ke `archived` sebagai tanda dokumen final dan diarsipkan.",
+      "name": "05 · Approver — Approve & Reject",
+      "description": "Approver melihat dokumen yang sudah reviewed, lalu memutuskan: approve (→ approved) atau reject (→ rejected). Dokumen rejected bisa diperbaiki dan diresubmit oleh uploader.",
       "item": [
         {
-          "name": "Lihat Semua Dokumen Published (siap approve)",
+          "name": "Lihat Semua Dokumen Reviewed (siap di-approve)",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/documents?status=published",
-              "query": [{ "key": "status", "value": "published" }]
+              "raw": "{{base_url}}/documents?status=reviewed",
+              "query": [{ "key": "status", "value": "reviewed" }]
             },
             "header": [{ "key": "Authorization", "value": "Bearer {{token_approver}}" }],
-            "description": "Approver melihat dokumen yang sudah direview dan siap disetujui."
+            "description": "Approver melihat dokumen yang sudah direview dan siap diputuskan."
           }
         },
         {
@@ -636,51 +636,184 @@
           "request": {
             "method": "GET",
             "url": "{{base_url}}/documents/{{document_id}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_approver}}" }],
-            "description": "Buka detail dokumen untuk keputusan final."
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_approver}}" }]
           }
         },
         {
-          "name": "Approve Dokumen — Status: published → archived",
+          "name": "Tambah Komentar Approver",
           "request": {
-            "method": "PUT",
-            "url": "{{base_url}}/documents/{{document_id}}",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_approver}}" }],
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/comments",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_approver}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
             "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "status", "value": "archived", "type": "text" }
-              ]
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Dokumen terlihat baik. Menyetujui untuk diarsipkan.\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "description": "Approver menyetujui dan mengarsipkan dokumen. Status berubah dari `published` ke `archived` — ini state final dokumen."
+            "description": "Approver menambahkan catatan sebelum memberi keputusan."
+          }
+        },
+        {
+          "name": "✅ Approve Dokumen — reviewed → approved",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/approve",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_approver}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Disetujui. Laporan sesuai dengan standar akuntansi perusahaan.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Approver menyetujui dokumen. Status berubah dari `reviewed` → `approved`. Dokumen siap diarsipkan oleh Admin."
           },
           "response": [
             {
               "name": "200 OK",
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"message\": \"Dokumen berhasil diupdate\",\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"Laporan Keuangan Q1 2025 (Revisi)\",\n    \"status\": \"archived\"\n  }\n}"
+              "body": "{\n  \"message\": \"Dokumen berhasil diapprove\",\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"Laporan Keuangan Q1 2025 (Revisi)\",\n    \"status\": \"approved\"\n  }\n}"
             }
           ]
         },
         {
-          "name": "Lihat Semua Dokumen Archived",
+          "name": "❌ Reject Dokumen — reviewed → rejected",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/reject",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_approver}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Ditolak. Terdapat kesalahan penghitungan pada tabel arus kas. Mohon diperbaiki dan disubmit ulang.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Approver menolak dokumen. Status berubah dari `reviewed` → `rejected`. Field `note` wajib berisi alasan penolakan agar uploader tahu apa yang perlu diperbaiki."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Dokumen berhasil direject\",\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"Laporan Keuangan Q1 2025 (Revisi)\",\n    \"status\": \"rejected\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Lihat Semua Dokumen Approved",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/documents?status=archived",
-              "query": [{ "key": "status", "value": "archived" }]
+              "raw": "{{base_url}}/documents?status=approved",
+              "query": [{ "key": "status", "value": "approved" }]
             },
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_approver}}" }],
-            "description": "Lihat seluruh dokumen yang sudah final dan diarsipkan."
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_approver}}" }]
+          }
+        },
+        {
+          "name": "Lihat Semua Dokumen Rejected",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/documents?status=rejected",
+              "query": [{ "key": "status", "value": "rejected" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_approver}}" }]
           }
         }
       ]
     },
 
     {
-      "name": "06 · Admin — Manajemen Penuh",
-      "description": "Admin memiliki akses penuh: melihat semua dokumen dari semua user, menghapus dokumen siapapun, dan mengelola kategori.",
+      "name": "06 · Uploader — Resubmit Setelah Reject",
+      "description": "Setelah dokumen ditolak (rejected), uploader memperbaiki dokumen lalu meresubmit agar kembali ke status `draft` dan bisa melewati alur review ulang.",
+      "item": [
+        {
+          "name": "Lihat Dokumen Rejected Milik Sendiri",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/documents?status=rejected",
+              "query": [{ "key": "status", "value": "rejected" }]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
+            "description": "Uploader melihat dokumen miliknya yang ditolak."
+          }
+        },
+        {
+          "name": "Lihat Komentar & Alasan Penolakan",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents/{{document_id}}/comments",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
+            "description": "Uploader membaca komentar dari reviewer/approver untuk mengetahui apa yang perlu diperbaiki."
+          }
+        },
+        {
+          "name": "Lihat Histori Perubahan",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents/{{document_id}}/history",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
+            "description": "Uploader melihat riwayat lengkap perubahan status dokumen."
+          }
+        },
+        {
+          "name": "Upload File Perbaikan — v3",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/documents/{{document_id}}",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title",        "value": "Laporan Keuangan Q1 2025 (Perbaikan Final)", "type": "text" },
+                { "key": "description",  "value": "Sudah diperbaiki sesuai catatan approver",   "type": "text" },
+                { "key": "version_note", "value": "Perbaikan tabel arus kas halaman 7",          "type": "text" },
+                { "key": "file",         "type": "file", "src": "" }
+              ]
+            },
+            "description": "Upload file baru setelah perbaikan. Versi v3 tercatat otomatis. Dokumen masih berstatus `rejected` — perlu resubmit setelah ini."
+          }
+        },
+        {
+          "name": "Resubmit Dokumen — rejected → draft",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/resubmit",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_uploader}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Sudah diperbaiki sesuai catatan. Tabel arus kas halaman 7 telah dikoreksi.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Uploader meresubmit dokumen yang sudah diperbaiki. Status berubah dari `rejected` → `draft`, siap direview ulang oleh reviewer."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Dokumen berhasil diresubmit\",\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"Laporan Keuangan Q1 2025 (Perbaikan Final)\",\n    \"status\": \"draft\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "07 · Admin — Archive & Dashboard",
+      "description": "Admin mengarsipkan dokumen yang sudah approved, melihat statistik dashboard, dan memiliki akses penuh ke semua dokumen.",
       "item": [
         {
           "name": "Lihat Semua Dokumen — Semua User",
@@ -694,30 +827,72 @@
               ]
             },
             "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
-            "description": "Admin melihat semua dokumen dari semua user (tidak difilter per user)."
+            "description": "Admin melihat semua dokumen dari semua user."
           }
         },
         {
-          "name": "Filter: Semua Dokumen Draft",
+          "name": "Filter: Dokumen Approved (siap diarsipkan)",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/documents?status=draft",
-              "query": [{ "key": "status", "value": "draft" }]
+              "raw": "{{base_url}}/documents?status=approved",
+              "query": [{ "key": "status", "value": "approved" }]
             },
             "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }]
           }
         },
         {
-          "name": "Filter: Semua Dokumen by Kategori",
+          "name": "Archive Dokumen — approved → archived",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/archive",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Dokumen diarsipkan sebagai dokumen final Q1 2025.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Admin mengarsipkan dokumen yang sudah approved. Status berubah dari `approved` → `archived`. Ini adalah state final dokumen."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"message\": \"Dokumen berhasil diarsipkan\",\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"Laporan Keuangan Q1 2025 (Perbaikan Final)\",\n    \"status\": \"archived\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Lihat Semua Dokumen Archived",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/documents?category_id=1",
-              "query": [{ "key": "category_id", "value": "1" }]
+              "raw": "{{base_url}}/documents?status=archived",
+              "query": [{ "key": "status", "value": "archived" }]
             },
             "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }]
           }
+        },
+        {
+          "name": "Dashboard — Statistik Dokumen",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/dashboard",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
+            "description": "Lihat jumlah dokumen per status, jumlah per kategori, dan jumlah user per role."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": {\n    \"documents\": {\n      \"total\": 10,\n      \"by_status\": {\n        \"draft\": 3,\n        \"reviewed\": 2,\n        \"approved\": 1,\n        \"rejected\": 1,\n        \"archived\": 3\n      }\n    },\n    \"users\": {\n      \"total\": 4,\n      \"by_role\": {\n        \"uploader\": 1,\n        \"reviewer\": 1,\n        \"approver\": 1,\n        \"admin\": 1\n      }\n    },\n    \"documents_by_category\": [\n      { \"category_id\": 1, \"category_name\": \"Keuangan\", \"count\": 5 },\n      { \"category_id\": 2, \"category_name\": \"SDM\",      \"count\": 3 },\n      { \"category_id\": 3, \"category_name\": \"Operasional\", \"count\": 2 }\n    ]\n  }\n}"
+            }
+          ]
         },
         {
           "name": "Cari Dokumen — Full Text Search",
@@ -731,7 +906,8 @@
                 { "key": "limit",  "value": "10" }
               ]
             },
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }]
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
+            "description": "Pencarian mencakup kolom title DAN description."
           }
         },
         {
@@ -743,11 +919,10 @@
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "title",  "value": "Laporan Keuangan Q1 2025 — Dikoreksi Admin", "type": "text" },
-                { "key": "status", "value": "published",                                   "type": "text" }
+                { "key": "title", "value": "Laporan Keuangan Q1 2025 — Dikoreksi Admin", "type": "text" }
               ]
             },
-            "description": "Admin bisa mengupdate dokumen milik user manapun."
+            "description": "Admin bisa mengupdate dokumen milik user manapun tanpa batasan status."
           }
         },
         {
@@ -757,30 +932,73 @@
             "url": "{{base_url}}/documents/{{document_id}}",
             "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
             "description": "Admin menghapus dokumen. File fisik di server juga ikut terhapus."
-          },
-          "response": [
-            {
-              "name": "200 OK",
-              "status": "OK",
-              "code": 200,
-              "body": "{\n  \"message\": \"Dokumen berhasil dihapus\"\n}"
-            }
-          ]
-        },
-        {
-          "name": "Get All Categories (audit)",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/categories",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }]
           }
         }
       ]
     },
 
     {
-      "name": "07 · Error Cases — Validasi & Otorisasi",
-      "description": "Kumpulan kasus error yang menunjukkan sistem keamanan berjalan dengan benar: 401 Unauthorized, 403 Forbidden, 404 Not Found, 400 Bad Request.",
+      "name": "08 · Versi & Histori Dokumen",
+      "description": "Akses riwayat versi file dan histori perubahan status dokumen. Semua role bisa mengakses dokumen yang relevan.",
+      "item": [
+        {
+          "name": "Lihat Semua Versi File",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents/{{document_id}}/versions",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
+            "description": "Lihat semua versi file yang pernah diupload untuk dokumen ini (v1, v2, v3, ...)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1, \"version_number\": 1,\n      \"original_filename\": \"laporan-q1.pdf\",\n      \"file_size\": 204800,\n      \"note\": null,\n      \"uploader\": { \"id\": 2, \"name\": \"Budi Uploader\" }\n    },\n    {\n      \"id\": 2, \"version_number\": 2,\n      \"original_filename\": \"laporan-q1-revisi.pdf\",\n      \"file_size\": 210000,\n      \"note\": \"Perbaikan angka di halaman 3\",\n      \"uploader\": { \"id\": 2, \"name\": \"Budi Uploader\" }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Lihat Histori Perubahan Status",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents/{{document_id}}/history",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
+            "description": "Lihat log lengkap semua aksi yang pernah dilakukan pada dokumen ini (created, updated, reviewed, approved, rejected, resubmitted, archived, commented)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"data\": [\n    { \"action\": \"created\",     \"old_status\": null,       \"new_status\": \"draft\",    \"actor\": { \"name\": \"Budi Uploader\" },   \"note\": null },\n    { \"action\": \"updated\",     \"old_status\": \"draft\",    \"new_status\": \"draft\",    \"actor\": { \"name\": \"Budi Uploader\" },   \"note\": null },\n    { \"action\": \"commented\",   \"old_status\": \"draft\",    \"new_status\": \"draft\",    \"actor\": { \"name\": \"Siti Reviewer\" },   \"note\": \"Mohon perbaiki angka...\" },\n    { \"action\": \"reviewed\",    \"old_status\": \"draft\",    \"new_status\": \"reviewed\", \"actor\": { \"name\": \"Siti Reviewer\" },   \"note\": \"Dokumen sudah diperiksa\" },\n    { \"action\": \"rejected\",    \"old_status\": \"reviewed\", \"new_status\": \"rejected\", \"actor\": { \"name\": \"Doni Approver\" },   \"note\": \"Kesalahan di tabel arus kas\" },\n    { \"action\": \"resubmitted\", \"old_status\": \"rejected\", \"new_status\": \"draft\",    \"actor\": { \"name\": \"Budi Uploader\" },   \"note\": \"Sudah diperbaiki\" },\n    { \"action\": \"reviewed\",    \"old_status\": \"draft\",    \"new_status\": \"reviewed\", \"actor\": { \"name\": \"Siti Reviewer\" },   \"note\": null },\n    { \"action\": \"approved\",    \"old_status\": \"reviewed\", \"new_status\": \"approved\", \"actor\": { \"name\": \"Doni Approver\" },   \"note\": \"Disetujui\" },\n    { \"action\": \"archived\",    \"old_status\": \"approved\", \"new_status\": \"archived\", \"actor\": { \"name\": \"Admin Archiva\" },   \"note\": \"Dokumen final Q1 2025\" }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Lihat Komentar Dokumen",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents/{{document_id}}/comments",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
+            "description": "Lihat semua komentar yang diberikan reviewer dan approver pada dokumen ini."
+          }
+        },
+        {
+          "name": "Lihat Versi (sebagai Uploader)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/documents/{{document_id}}/versions",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
+            "description": "Uploader juga bisa melihat versi dokumen miliknya sendiri."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "09 · Error Cases — Validasi & Otorisasi",
+      "description": "Kasus error yang menunjukkan sistem keamanan dan validasi workflow berjalan dengan benar.",
       "item": [
         {
           "name": "❌ 401 — Akses Tanpa Token",
@@ -799,21 +1017,12 @@
           ]
         },
         {
-          "name": "❌ 401 — Token Tidak Valid / Expired",
+          "name": "❌ 401 — Token Tidak Valid",
           "request": {
             "method": "GET",
             "url": "{{base_url}}/documents",
-            "header": [{ "key": "Authorization", "value": "Bearer token_palsu_tidak_valid_12345" }],
-            "description": "Token palsu atau sudah expired → 401."
-          },
-          "response": [
-            {
-              "name": "401 Unauthorized",
-              "status": "Unauthorized",
-              "code": 401,
-              "body": "{\n  \"message\": \"Token tidak valid\"\n}"
-            }
-          ]
+            "header": [{ "key": "Authorization", "value": "Bearer token_palsu_tidak_valid_12345" }]
+          }
         },
         {
           "name": "❌ 401 — Login Password Salah",
@@ -825,17 +1034,8 @@
               "mode": "raw",
               "raw": "{\n  \"email\": \"admin@archiva.com\",\n  \"password\": \"passwordsalah\"\n}",
               "options": { "raw": { "language": "json" } }
-            },
-            "description": "Kredensial salah → 401."
-          },
-          "response": [
-            {
-              "name": "401 Unauthorized",
-              "status": "Unauthorized",
-              "code": 401,
-              "body": "{\n  \"message\": \"Email atau password salah\"\n}"
             }
-          ]
+          }
         },
         {
           "name": "❌ 409 — Register Email Sudah Terdaftar",
@@ -847,20 +1047,11 @@
               "mode": "raw",
               "raw": "{\n  \"name\": \"Admin Duplikat\",\n  \"email\": \"admin@archiva.com\",\n  \"password\": \"password123\",\n  \"role\": \"admin\"\n}",
               "options": { "raw": { "language": "json" } }
-            },
-            "description": "Email sudah dipakai → 409 Conflict."
-          },
-          "response": [
-            {
-              "name": "409 Conflict",
-              "status": "Conflict",
-              "code": 409,
-              "body": "{\n  \"message\": \"Email sudah terdaftar\"\n}"
             }
-          ]
+          }
         },
         {
-          "name": "❌ 403 — Uploader Buat Kategori (forbidden)",
+          "name": "❌ 403 — Uploader Buat Kategori",
           "request": {
             "method": "POST",
             "url": "{{base_url}}/categories",
@@ -873,81 +1064,149 @@
               "raw": "{\n  \"name\": \"Kategori Ilegal\"\n}",
               "options": { "raw": { "language": "json" } }
             },
-            "description": "Hanya Admin yang boleh membuat kategori → 403 Forbidden."
-          },
-          "response": [
-            {
-              "name": "403 Forbidden",
-              "status": "Forbidden",
-              "code": 403,
-              "body": "{\n  \"message\": \"Akses ditolak\"\n}"
-            }
-          ]
+            "description": "Hanya Admin yang boleh membuat kategori → 403."
+          }
         },
         {
-          "name": "❌ 403 — Uploader Hapus Dokumen Orang Lain",
+          "name": "❌ 403 — Uploader Review Dokumen",
           "request": {
-            "method": "DELETE",
-            "url": "{{base_url}}/documents/1",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
-            "description": "Uploader mencoba menghapus dokumen milik Admin → 403."
-          },
-          "response": [
-            {
-              "name": "403 Forbidden",
-              "status": "Forbidden",
-              "code": 403,
-              "body": "{\n  \"message\": \"Tidak diizinkan menghapus dokumen ini\"\n}"
-            }
-          ]
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/review",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_uploader}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Coba review sendiri\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Hanya reviewer/admin yang boleh mereview → 403."
+          }
         },
         {
-          "name": "❌ 403 — Uploader Edit Dokumen Orang Lain",
+          "name": "❌ 403 — Reviewer Approve Dokumen",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/approve",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_reviewer}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Coba approve sendiri\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Hanya approver/admin yang boleh approve → 403."
+          }
+        },
+        {
+          "name": "❌ 403 — Uploader Archive Dokumen",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/archive",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_uploader}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Hanya admin yang boleh mengarsipkan dokumen → 403."
+          }
+        },
+        {
+          "name": "❌ 400 — Review Dokumen Bukan Draft",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/review",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_reviewer}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Coba review dokumen yang sudah reviewed\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Dokumen yang sudah berstatus reviewed/approved tidak bisa direview lagi → 400."
+          }
+        },
+        {
+          "name": "❌ 400 — Approve Dokumen Bukan Reviewed",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/approve",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_approver}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Coba approve dokumen yang masih draft\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Hanya dokumen berstatus reviewed yang bisa di-approve → 400."
+          }
+        },
+        {
+          "name": "❌ 400 — Update Dokumen Berstatus Approved",
           "request": {
             "method": "PUT",
-            "url": "{{base_url}}/documents/1",
+            "url": "{{base_url}}/documents/{{document_id}}",
             "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
             "body": {
               "mode": "formdata",
               "formdata": [
-                { "key": "title", "value": "Coba Ubah Dokumen Orang Lain", "type": "text" }
+                { "key": "title", "value": "Coba edit dokumen approved", "type": "text" }
               ]
             },
-            "description": "Uploader mencoba mengubah dokumen yang bukan miliknya → 403."
-          },
-          "response": [
-            {
-              "name": "403 Forbidden",
-              "status": "Forbidden",
-              "code": 403,
-              "body": "{\n  \"message\": \"Tidak diizinkan mengubah dokumen ini\"\n}"
-            }
-          ]
+            "description": "Uploader tidak bisa mengedit dokumen yang sudah approved/reviewed/archived → 400."
+          }
+        },
+        {
+          "name": "❌ 400 — Resubmit Dokumen Bukan Rejected",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/resubmit",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_uploader}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Coba resubmit dokumen yang masih draft\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Hanya dokumen berstatus rejected yang bisa diresubmit → 400."
+          }
+        },
+        {
+          "name": "❌ 400 — Archive Dokumen Bukan Approved",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/documents/{{document_id}}/archive",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_admin}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Hanya dokumen berstatus approved yang bisa diarsipkan → 400."
+          }
         },
         {
           "name": "❌ 404 — Dokumen Tidak Ada",
           "request": {
             "method": "GET",
             "url": "{{base_url}}/documents/99999",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
-            "description": "Dokumen dengan ID 99999 tidak ada → 404 Not Found."
-          },
-          "response": [
-            {
-              "name": "404 Not Found",
-              "status": "Not Found",
-              "code": 404,
-              "body": "{\n  \"message\": \"Dokumen tidak ditemukan\"\n}"
-            }
-          ]
-        },
-        {
-          "name": "❌ 404 — Kategori Tidak Ada",
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/categories/99999",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
-            "description": "Kategori dengan ID 99999 tidak ada → 404."
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }]
           }
         },
         {
@@ -962,17 +1221,8 @@
                 { "key": "description", "value": "Tidak ada title",  "type": "text" },
                 { "key": "category_id", "value": "1",                "type": "text" }
               ]
-            },
-            "description": "Field `title` wajib diisi → 400 Bad Request."
-          },
-          "response": [
-            {
-              "name": "400 Bad Request",
-              "status": "Bad Request",
-              "code": 400,
-              "body": "{\n  \"message\": \"title wajib diisi\"\n}"
             }
-          ]
+          }
         },
         {
           "name": "❌ 400 — Buat Dokumen Tanpa Category",
@@ -985,41 +1235,8 @@
               "formdata": [
                 { "key": "title", "value": "Dokumen Tanpa Kategori", "type": "text" }
               ]
-            },
-            "description": "Field `category_id` wajib diisi → 400 Bad Request."
-          },
-          "response": [
-            {
-              "name": "400 Bad Request",
-              "status": "Bad Request",
-              "code": 400,
-              "body": "{\n  \"message\": \"category_id wajib diisi\"\n}"
             }
-          ]
-        },
-        {
-          "name": "❌ 404 — Buat Dokumen ke Kategori Tidak Ada",
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/documents",
-            "header": [{ "key": "Authorization", "value": "Bearer {{token_uploader}}" }],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                { "key": "title",       "value": "Dokumen Kategori Tidak Valid", "type": "text" },
-                { "key": "category_id", "value": "9999",                          "type": "text" }
-              ]
-            },
-            "description": "Category ID 9999 tidak ada di database → 404."
-          },
-          "response": [
-            {
-              "name": "404 Not Found",
-              "status": "Not Found",
-              "code": 404,
-              "body": "{\n  \"message\": \"Kategori tidak ditemukan\"\n}"
-            }
-          ]
+          }
         }
       ]
     }

@@ -12,7 +12,7 @@ const Document = sequelize.define('Document', {
   file_size: { type: DataTypes.INTEGER, allowNull: true },
   mime_type: { type: DataTypes.STRING(100), allowNull: true },
   status: {
-    type: DataTypes.ENUM('draft', 'published', 'archived'),
+    type: DataTypes.ENUM('draft', 'reviewed', 'approved', 'rejected', 'archived'),
     allowNull: false,
     defaultValue: 'draft',
   },
